@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>لعبة الظروف: زمان ومكان | الصف السادس</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* منع تحديد النصوص أثناء السحب */
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Tahoma', 'Roboto', 'Cairo', sans-serif;
+            background: linear-gradient(145deg, #f0f4fc 0%, #d9e2f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* الحاوية الرئيسية للعبة */
+        .game-container {
+            max-width: 1300px;
+            width: 100%;
+            background-color: rgba(255,255,240,0.85);
+            border-radius: 70px 70px 60px 60px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.6);
+            overflow: hidden;
+            backdrop-filter: blur(1px);
+            transition: all 0.2s;
+        }
+
+        /* رأس اللعبة - عنوان باللون #21417b */
+        .game-header {
+            background-color: #21417b;
+            padding: 20px 25px;
+            text-align: center;
+            border-bottom: 5px solid #ffea9e;
+        }
+
+        .game-header h1 {
+            color: white;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 #0f2a55;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .game-header h1 span {
+            background-color: #ffea9e;
+            color: #21417b;
+            font-size: 1.7rem;
+            padding: 0 15px;
+            border-radius: 50px;
+            font-weight: bold;
+        }
+
+        /* منطقة التوجيهات - باللون #1e293b */
+        .instructions {
+            background-color: #1e293b;
+            color: #ffea9e;
+            padding: 14px 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-bottom: 2px dashed #ffea9e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .score-box {
+            background-color: #00000055;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffea9e;
+            backdrop-filter: blur(4px);
+        }
+
+        .score-box span {
+            font-size: 1.9rem;
+            margin-left: 6px;
+            color: white;
+        }
+
+        /* المحتوى الرئيسي: سؤالين متجاورين (شبكة مرنة) */
+        .game-main {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            padding: 30px 25px;
+            justify-content: center;
+        }
+
+        /* عمود الأسئلة (الجانب الأيمن) */
+        .questions-area {
+            flex: 2;
+            min-width: 280px;
+            background: #fef9e6;
+            border-radius: 50px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .questions-area h2 {
+            background-color: #21417b;
+            display: inline-block;
+            padding: 8px 25px;
+            border-radius: 40px;
+            color: white;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+        }
+
+        .question-card {
+            background: white;
+            margin-bottom: 20px;
+            border-radius: 40px;
+            padding: 15px 25px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+            border-right: 12px solid #ffea9e;
+            transition: 0.1s linear;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: black; /* كتابة الاسئلة بالاسود */
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .q-num {
+            background-color: #ffea9e;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #1e293b;
+        }
+
+        .answer-slot {
+            background-color: #f2f0e6;
+            border: 3px dashed #b0b7c9;
+            border-radius: 60px;
+            padding: 12px 18px;
+            margin-top: 10px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .answer-bubble {
+            background-color: #ffea9e;
+            color: #1e293b;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .answer-bubble:hover {
+            transform: scale(1.02);
+            background-color: #ffe085;
+        }
+
+        .placeholder-msg {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.95rem;
+        }
+
+        /* عمود الإجابات المتاحة (ظروف زمان ومكان) */
+        .answers-pool {
+            flex: 1.2;
+            min-width: 260px;
+            background: #fff7e8;
+            border-radius: 50px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .answers-pool h2 {
+            background-color: #21417b;
+            display: inline-block;
+            padding: 8px 25px;
+            border-radius: 40px;
+            color: white;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+        }
+
+        .draggable-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .drag-item {
+            background: linear-gradient(135deg, #ffffff, #faf3e0);
+            border-right: 8px solid #ffea9e;
+            padding: 14px 20px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1e293b;
+            cursor: grab;
+            transition: all 0.15s;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+        }
+
+        .drag-item.dragging {
+            opacity: 0.4;
+            cursor: grabbing;
+        }
+
+        .reset-btn {
+            background-color: #21417b;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.1s;
+            margin: 10px 20px 20px auto;
+            display: inline-block;
+            box-shadow: 0 5px 0 #0f2a55;
+        }
+
+        .reset-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #0f2a55;
+        }
+
+        .footer-actions {
+            display: flex;
+            justify-content: center;
+            padding: 0 25px 25px 25px;
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 780px) {
+            .game-header h1 { font-size: 1.6rem; }
+            .question-text { font-size: 1.2rem; }
+            .drag-item { font-size: 1rem; }
+            .instructions { font-size: 1rem; }
+        }
+
+        @media (max-width: 550px) {
+            .game-main { padding: 15px; }
+            .question-card { padding: 12px; }
+            .answer-slot { padding: 8px 12px; }
+        }
+
+        button {
+            background: none;
+            border: none;
+        }
+
+        .celebration {
+            transition: 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="game-header">
+        <h1>
+            📦 لعبة الظروف 🕰️📍
+            <span>زمان + مكان</span>
+        </h1>
+    </div>
+    <div class="instructions">
+        <div>✨ اسحب الإجابة (ظرف زمان أو مكان) وضعها في المربع المناسب لكل سؤال ✨</div>
+        <div class="score-box">⭐ النقاط: <span id="scoreDisplay">0</span> / 5</div>
+    </div>
+
+    <div class="game-main">
+        <!-- منطقة الأسئلة (5 أسئلة) -->
+        <div class="questions-area">
+            <h2>❓ الأسئلة الذهبية</h2>
+            <div id="questionsContainer"></div>
+        </div>
+
+        <!-- منطقة الإجابات المتاحة (ظروف زمان ومكان) -->
+        <div class="answers-pool">
+            <h2>📦 الإجابات المتاحة</h2>
+            <div id="answersPool" class="draggable-list"></div>
+        </div>
+    </div>
+    <div class="footer-actions">
+        <button class="reset-btn" id="resetGameBtn">🔄 إعادة اللعبة 🔄</button>
+    </div>
+</div>
+
+<script>
+    // ---------- بيانات اللعبة ----------
+    // كل سؤال: نص السؤال، id فريد، الإجابة الصحيحة (ظرف زمان/مكان)
+    const questionsData = [
+        { id: 0, text: "أين وضعت الكتاب ؟", correctAnswer: "على الرفِّ" },
+        { id: 1, text: "متى تهب الرياح الباردة ؟", correctAnswer: "في الشتاءِ" },
+        { id: 2, text: "أين يطوف الحجاج ؟", correctAnswer: "حول الكعبةِ" },
+        { id: 3, text: "متى تسافر إلى المصيف ؟", correctAnswer: "في العُطلةِ" },
+        { id: 4, text: "أين يقع مسكنك ؟", correctAnswer: "في المدينةِ المنورةِ" }   // يمكن أي ظرف مكان
+    ];
+
+    // مجموعة الإجابات المتاحة (جميع الظروف مع بعض إضافات للاختبار، لكن يجب أن تحتوي على الإجابات الصحيحة)
+    // ستعرض عشوائياً لكن مع ضمان وجود الإجابات الصحيحة الخمسة + إضافات لزيادة التحدي.
+    const extraAnswers = ["فوق الجبلِ", "قبل الفجرِ", "خلف البيتِ", "بعد المغربِ", "في الحديقةِ", "أمسِ", "غداً"];
+    let availableAnswers = [];
+
+    // حالة اللعبة: answersState[key] = { questionId, answerText } أو null إن لم يُجب
+    let answersState = {
+        0: null,
+        1: null,
+        2: null,
+        3: null,
+        4: null
+    };
+
+    let score = 0;
+    let audioCtx = null;  // سيتم تهيئته عند أول تفاعل (لتفادي قيود المتصفح)
+    
+    // عناصر DOM
+    const questionsContainer = document.getElementById('questionsContainer');
+    const answersPoolDiv = document.getElementById('answersPool');
+    const scoreDisplaySpan = document.getElementById('scoreDisplay');
+
+    // وظيفة تحديث عرض النقاط
+    function updateScoreUI() {
+        scoreDisplaySpan.innerText = score;
+    }
+
+    // حساب النقاط بناءً على answersState والمقارنة مع correctAnswer
+    function recalcScore() {
+        let newScore = 0;
+        for (let qId = 0; qId < questionsData.length; qId++) {
+            const stateAns = answersState[qId];
+            if (stateAns && stateAns.answerText === questionsData[qId].correctAnswer) {
+                newScore++;
+            }
+        }
+        score = newScore;
+        updateScoreUI();
+        // إذا اكتملت اللعبة (الخمسة كلها صحيحة) -> صوت نصر
+        if (score === 5) {
+            playSound('win');
+        }
+        return score;
+    }
+
+    // تشغيل الأصوات (بسيطة باستخدام Web Audio API - نغمات قصيرة)
+    function playSound(type) {
+        try {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            // تأكد من أن السياق نشط
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            if (type === 'correct') {
+                osc.frequency.value = 880;
+                gain.gain.value = 0.2;
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+                osc.start();
+                osc.stop(now + 0.35);
+            } else if (type === 'wrong') {
+                osc.frequency.value = 440;
+                gain.gain.value = 0.15;
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+                osc.start();
+                osc.stop(now + 0.25);
+            } else if (type === 'win') {
+                // لحن بسيط: نغمتان سريعتان
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.frequency.value = 1046.5;
+                gain2.gain.value = 0.2;
+                gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+                osc2.start();
+                osc2.stop(now + 0.45);
+                
+                const osc3 = audioCtx.createOscillator();
+                const gain3 = audioCtx.createGain();
+                osc3.connect(gain3);
+                gain3.connect(audioCtx.destination);
+                osc3.frequency.value = 1318.5;
+                gain3.gain.value = 0.2;
+                gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+                osc3.start();
+                osc3.stop(now + 0.55);
+            }
+        } catch(e) { console.log("audio error", e); }
+    }
+
+    // تحديث واجهة الأسئلة (إعادة بناء منطقة الأسئلة)
+    function renderQuestions() {
+        questionsContainer.innerHTML = '';
+        questionsData.forEach((q, idx) => {
+            const currentAnswerObj = answersState[q.id];
+            const displayedAnswer = currentAnswerObj ? currentAnswerObj.answerText : null;
+            
+            const qCard = document.createElement('div');
+            qCard.className = 'question-card';
+            qCard.setAttribute('data-qid', q.id);
+            
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-text';
+            questionDiv.innerHTML = `<span class="q-num">${idx+1}</span> ${q.text}`;
+            
+            const slotDiv = document.createElement('div');
+            slotDiv.className = 'answer-slot';
+            slotDiv.setAttribute('data-slot-qid', q.id);
+            
+            if (displayedAnswer) {
+                const bubble = document.createElement('div');
+                bubble.className = 'answer-bubble';
+                bubble.innerText = displayedAnswer;
+                // إمكانية حذف الإجابة عند النقر عليها (لإعادة الإجابة إلى المخزون)
+                bubble.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // إرجاع الإجابة إلى pool
+                    const ansText = displayedAnswer;
+                    const wasCorrect = (ansText === questionsData[q.id].correctAnswer);
+                    // إزالة من answersState
+                    answersState[q.id] = null;
+                    // إعادة الإضافة إلى قائمة الإجابات المتاحة
+                    addAnswerToPool(ansText);
+                    // إعادة حساب النقاط
+                    const newScore = recalcScore();
+                    // إذا كانت الإجابة المسحوبة كانت صحيحة وكانت النتيجة تغيرت، صوت
+                    if (wasCorrect) {
+                        playSound('wrong'); // صوت تراجع
+                    }
+                    renderQuestions();
+                    renderAnswersPool();
+                });
+                slotDiv.appendChild(bubble);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder-msg';
+                placeholder.innerText = '➕ ضع الإجابة هنا (اسحب من اليمين)';
+                slotDiv.appendChild(placeholder);
+            }
+            
+            // جعل منطقة الإجابة قابلة للسحب إليها (drop zone)
+            slotDiv.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                slotDiv.style.backgroundColor = '#e9e4ce';
+            });
+            slotDiv.addEventListener('dragleave', () => {
+                slotDiv.style.backgroundColor = '#f2f0e6';
+            });
+            slotDiv.addEventListener('drop', (e) => {
+                e.preventDefault();
+                slotDiv.style.backgroundColor = '#f2f0e6';
+                const draggedAnswer = e.dataTransfer.getData('text/plain');
+                if (!draggedAnswer) return;
+                const targetQId = parseInt(slotDiv.getAttribute('data-slot-qid'));
+                const currentAnswerInSlot = answersState[targetQId];
+                if (currentAnswerInSlot) {
+                    // لا يمكن استبدال الإجابة قبل إزالتها (يجب مسحها أولا)
+                    playSound('wrong');
+                    showTemporaryMessage(slotDiv, '⚠️ أزل الإجابة الحالية أولاً! ⚠️');
+                    return;
+                }
+                // التحقق: هل الإجابة المسحوبة موجودة في answersPool الحالي (لم تُستخدم)
+                const stillAvailable = availableAnswers.includes(draggedAnswer);
+                if (!stillAvailable) {
+                    playSound('wrong');
+                    showTemporaryMessage(slotDiv, '🚫 هذه الإجابة غير متاحة!');
+                    return;
+                }
+                // تعيين الإجابة
+                answersState[targetQId] = { answerText: draggedAnswer };
+                // إزالة الإجابة من availableAnswers
+                const indexInPool = availableAnswers.indexOf(draggedAnswer);
+                if (indexInPool !== -1) availableAnswers.splice(indexInPool, 1);
+                
+                // التحقق من صحة الإجابة
+                const isCorrect = (draggedAnswer === questionsData[targetQId].correctAnswer);
+                if (isCorrect) {
+                    playSound('correct');
+                } else {
+                    playSound('wrong');
+                }
+                recalcScore();
+                renderQuestions();
+                renderAnswersPool();
+            });
+            
+            qCard.appendChild(questionDiv);
+            qCard.appendChild(slotDiv);
+            questionsContainer.appendChild(qCard);
+        });
+    }
+    
+    // عرض رسالة مؤقتة
+    function showTemporaryMessage(element, msg) {
+        const originalBackground = element.style.backgroundColor;
+        const originalTransition = element.style.transition;
+        const messageDiv = document.createElement('div');
+        messageDiv.innerText = msg;
+        messageDiv.style.position = 'absolute';
+        messageDiv.style.backgroundColor = '#ffea9e';
+        messageDiv.style.color = '#b00020';
+        messageDiv.style.padding = '4px 12px';
+        messageDiv.style.borderRadius = '30px';
+        messageDiv.style.fontSize = '0.8rem';
+        messageDiv.style.zIndex = '200';
+        messageDiv.style.whiteSpace = 'nowrap';
+        const rect = element.getBoundingClientRect();
+        messageDiv.style.top = (rect.top - 30 + window.scrollY) + 'px';
+        messageDiv.style.left = (rect.left + 20) + 'px';
+        document.body.appendChild(messageDiv);
+        setTimeout(() => { messageDiv.remove(); }, 1200);
+    }
+    
+    // إضافة إجابة معينة إلى pool (تستخدم عند إعادة الإجابة من سؤال)
+    function addAnswerToPool(answerText) {
+        if (!availableAnswers.includes(answerText)) {
+            availableAnswers.push(answerText);
+        }
+        // إعادة ترتيب عشوائي بسيط لتجديد اللعبة
+        shuffleArray(availableAnswers);
+    }
+    
+    // عرض الإجابات المتاحة في الرف (مع خاصية drag)
+    function renderAnswersPool() {
+        answersPoolDiv.innerHTML = '';
+        if (availableAnswers.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.innerText = '🎉 أحسنت! كل الإجابات وُضعت 🎉';
+            emptyMsg.style.padding = '20px';
+            emptyMsg.style.textAlign = 'center';
+            emptyMsg.style.fontWeight = 'bold';
+            emptyMsg.style.backgroundColor = '#ffea9e';
+            emptyMsg.style.borderRadius = '50px';
+            answersPoolDiv.appendChild(emptyMsg);
+            return;
+        }
+        const listContainer = document.createElement('div');
+        listContainer.className = 'draggable-list';
+        availableAnswers.forEach(answer => {
+            const dragItem = document.createElement('div');
+            dragItem.className = 'drag-item';
+            dragItem.setAttribute('draggable', 'true');
+            dragItem.setAttribute('data-answer', answer);
+            dragItem.innerText = answer;
+            dragItem.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', answer);
+                e.dataTransfer.effectAllowed = 'copy';
+                dragItem.classList.add('dragging');
+            });
+            dragItem.addEventListener('dragend', (e) => {
+                dragItem.classList.remove('dragging');
+            });
+            // لمسات إضافية للجوال: يمكن النقر للإضافة بسرعة (اختياري) لتحسين تجربة اللمس
+            dragItem.addEventListener('click', (e) => {
+                // للمساعد: إذا كان المستخدم على جوال، النقر على الإجابة يظهر خيارات لكن سندعم السحب أيضًا، لكن نضيف خاصية النقر السريع:
+                // سؤال: من الأسهل أن نضيف خاصية: انقر على الإجابة ثم انقر على مكان السؤال? لكن سيكون معقد. بدلاً من ذلك نضيف مربع حوار بسيط غير.
+                // لكن الأفضل ترك السحب طبيعياً، ولتحسين الجوال نضيف رسالة: اسحب بأصبعك.
+                // لكن للراحة نضيف إشعار.
+                showTemporaryMessage(dragItem, 'اسحبني وضعني في المربع الفارغ 👆');
+            });
+            listContainer.appendChild(dragItem);
+        });
+        answersPoolDiv.appendChild(listContainer);
+    }
+    
+    // خلط المصفوفة
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+    
+    // تهيئة الإجابات المتاحة (تضمن وجود الإجابات الصحيحة + إضافات)
+    function initAvailableAnswers() {
+        const correctAnswersList = questionsData.map(q => q.correctAnswer);
+        // نخلط الإضافات مع الصحيحة
+        let combined = [...correctAnswersList, ...extraAnswers];
+        // إزالة التكرارات إن وجدت (لن تكون عادة)
+        combined = [...new Map(combined.map(item => [item, item])).values()];
+        availableAnswers = combined;
+        shuffleArray(availableAnswers);
+    }
+    
+    // إعادة ضبط اللعبة بالكامل
+    function resetGame() {
+        // إعادة حالة الإجابات إلى null
+        for (let i = 0; i <= 4; i++) {
+            answersState[i] = null;
+        }
+        initAvailableAnswers();   // يجدد المخزون
+        score = 0;
+        updateScoreUI();
+        renderQuestions();
+        renderAnswersPool();
+        playSound('wrong');  // مجرد صوت تنبيه خفيف
+        // إعادة ضبط سياق الصوت إذا كان معلقاً
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+    
+    // منع السحب الافتراضي على الصور
+    window.addEventListener('dragstart', (e) => {
+        if (!e.target.closest('.drag-item')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // تهيئة أولية
+    function init() {
+        initAvailableAnswers();
+        renderQuestions();
+        renderAnswersPool();
+        recalcScore();
+        const resetBtn = document.getElementById('resetGameBtn');
+        resetBtn.addEventListener('click', () => {
+            resetGame();
+        });
+        // تفعيل الصوت عند أول نقرة في الصفحة (لتفعيل AudioContext)
+        document.body.addEventListener('click', () => {
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            } else if (!audioCtx) {
+                // لا نقوم بإنشاء إلا عند الحاجة لكن لتجنب تأخير
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioCtx.resume();
+            }
+        }, { once: true });
+    }
+    
+    init();
+</script>
+</body>
+</html>
